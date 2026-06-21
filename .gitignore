@@ -1,0 +1,17 @@
+# C#
+consumptioness-win/bin/
+consumptioness-win/obj/
+consumptioness-win/.vs/
+consumptioness-win/*.user
+consumptioness-win/*.suo
+
+# Electron
+consumptioness-electron/node_modules/
+consumptioness-electron/dist/
+consumptioness-electron/dist-electron/
+consumptioness-electron/release/
+consumptioness-electron/*.log
+
+# OS
+.DS_Store
+Thumbs.db

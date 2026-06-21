@@ -1,0 +1,250 @@
+<Window x:Class="Consumptioness.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Consumptioness v0.0.1"
+        Width="800" Height="700"
+        MinWidth="700" MinHeight="600"
+        Background="#0d0b15"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Inter, Segoe UI, sans-serif"
+        TextElement.Foreground="#bfc2d9">
+    <Window.Resources>
+        <Style x:Key="GlassCard" TargetType="Border">
+            <Setter Property="Background" Value="#1e1b298c"/>
+            <Setter Property="BorderBrush" Value="#c084fc2e"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#c084fc" Opacity="0.08" BlurRadius="20" ShadowDepth="0"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#c084fc"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="FontWeight" Value="600"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#2a2740"/>
+            <Setter Property="BorderBrush" Value="#c084fc4d"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="ValueText" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="600"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style x:Key="LabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8b89a3"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+            <TextBlock Text="⚡" FontSize="28" Margin="0,0,8,0"/>
+            <TextBlock Text="Consumptioness" FontSize="24" FontWeight="700" Foreground="#ffffff"/>
+            <TextBlock Text="  v0.0.1" FontSize="14" Foreground="#8b89a3" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+            <Button x:Name="BtnScan" Style="{StaticResource PrimaryButton}" Click="BtnScan_Click" Margin="0,0,8,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔍 " FontSize="16"/>
+                    <TextBlock Text="Scan My PC" FontSize="14"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnUpdate" Style="{StaticResource SecondaryButton}" Click="BtnUpdate_Click" Margin="8,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔄 " FontSize="14"/>
+                    <TextBlock Text="Check Update" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" MaxHeight="400">
+            <StackPanel>
+                <!-- Hardware Detected Card -->
+                <Border Style="{StaticResource GlassCard}" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Hardware Detected" FontSize="16" FontWeight="700" Foreground="#c084fc" Margin="0,0,0,10"/>
+                        <ItemsControl x:Name="HardwareList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Icon}" Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Label}" Foreground="#bfc2d9"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Value}" FontWeight="600" Foreground="#ffffff"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Height="1" Background="#c084fc1a" Margin="0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="⚡" Margin="0,0,8,0" FontSize="16"/>
+                            <TextBlock Grid.Column="1" Text="Total Estimated Max" FontWeight="600" Foreground="#a8d8ea"/>
+                            <TextBlock x:Name="TxtMaxPower" Grid.Column="2" Text="0 W" FontSize="18" FontWeight="700" Foreground="#a8d8ea"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Live Power Card -->
+                <Border Style="{StaticResource GlassCard}" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Live Power" FontSize="16" FontWeight="700" Foreground="#a8d8ea"/>
+                            <TextBlock x:Name="TxtLiveWatts" Grid.Column="1" Text="0 W" FontSize="24" FontWeight="700" Foreground="#ffc3a0"/>
+                        </Grid>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="CPU" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtCpuLoad" Text="0%" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="20"/>
+                                <TextBlock x:Name="TxtCpuWatts" Text="0 W" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="GPU" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtGpuLoad" Text="0%" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="20"/>
+                                <TextBlock x:Name="TxtGpuWatts" Text="0 W" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="Other" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtOtherWatts" Text="0 W" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="20"/>
+                                <TextBlock Text="constant" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Cost Breakdown Card -->
+                <Border Style="{StaticResource GlassCard}" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Cost Breakdown (TNB Malaysia - RM)" FontSize="16" FontWeight="700" Foreground="#ffc3a0" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="Per Hour" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtCostHour" Text="RM 0.00" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="16"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="Per Day" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtCostDay" Text="RM 0.00" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="16"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="Per Month" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtCostMonth" Text="RM 0.00" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="16"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                                <TextBlock Text="Per Year" Style="{StaticResource LabelText}" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TxtCostYear" Text="RM 0.00" Style="{StaticResource ValueText}" HorizontalAlignment="Center" FontSize="16"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Height="1" Background="#c084fc1a" Margin="0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="💤" Margin="0,0,8,0" FontSize="14"/>
+                            <TextBlock Grid.Column="1" Text="Standby cost per day" Foreground="#8b89a3"/>
+                            <TextBlock x:Name="TxtStandbyCost" Grid.Column="2" Text="RM 0.00" FontWeight="600" Foreground="#ffc3a0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Usage Hours Slider -->
+                <Border Style="{StaticResource GlassCard}" Padding="16" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Daily Usage: " Foreground="#8b89a3"/>
+                            <TextBlock x:Name="TxtDailyHours" Grid.Column="1" Text="8 hours" FontWeight="600" Foreground="#ffffff"/>
+                        </Grid>
+                        <Slider x:Name="SliderHours" Minimum="1" Maximum="24" Value="8" TickFrequency="1"
+                                Margin="0,8,0,0"
+                                ValueChanged="SliderHours_ValueChanged"
+                                Foreground="#c084fc" Background="#2a2740"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Export Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,12,0,0">
+            <Button x:Name="BtnExportPdf" Style="{StaticResource SecondaryButton}" Click="BtnExportPdf_Click" Margin="0,0,8,0" IsEnabled="False">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📄 " FontSize="14"/>
+                    <TextBlock Text="Export PDF" FontSize="14"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnExportExcel" Style="{StaticResource SecondaryButton}" Click="BtnExportExcel_Click" IsEnabled="False">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📊 " FontSize="14"/>
+                    <TextBlock Text="Export Excel" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Background="#1e1b29" CornerRadius="8" Padding="12,8" Margin="0,12,0,0">
+            <TextBlock x:Name="TxtStatus" Text="Ready. Click 'Scan My PC' to begin." Foreground="#8b89a3" FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>
