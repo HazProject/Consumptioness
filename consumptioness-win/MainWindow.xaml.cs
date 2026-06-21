@@ -42,6 +42,13 @@ public partial class MainWindow : Window
             _currentHardware = _hardware.Detect();
         });
 
+        if (_currentHardware == null)
+        {
+            TxtStatus.Text = "Scan failed. Hardware not detected.";
+            BtnScan.IsEnabled = true;
+            return;
+        }
+
         DisplayHardware(_currentHardware);
 
         var (maxWatts, otherWatts) = _powerEstimator.CalculateMaxPower(_currentHardware);
@@ -69,9 +76,44 @@ public partial class MainWindow : Window
         foreach (var s in hw.Storage)
             items.Add(new HardwareItem { Icon = "💽", Label = $"{s.Type}: {s.Name}", Value = $"{s.Watts}W" });
         items.Add(new HardwareItem { Icon = "🔧", Label = $"Mobo: {hw.Motherboard.Manufacturer}", Value = $"{hw.Motherboard.EstimatedWatts}W" });
+        items.Add(new HardwareItem { Icon = "❄️", Label = $"Cooler: {hw.CoolerModel}", Value = $"{hw.CoolerWatts:F1}W" });
         items.Add(new HardwareItem { Icon = "🌬️", Label = $"Fans + Peripherals", Value = $"{hw.FanCount * 2.5 + hw.UsbDevices * 2.5:F0}W" });
 
         HardwareList.ItemsSource = items;
+    }
+
+    private async void BtnCoolerLookup_Click(object sender, RoutedEventArgs e)
+    {
+        string model = TxtCoolerInput.Text;
+        if (string.IsNullOrWhiteSpace(model)) return;
+
+        BtnCoolerLookup.IsEnabled = false;
+        TxtStatus.Text = $"Searching specs for cooler: {model}...";
+
+        var lookupService = new CoolerLookupService();
+        double watts = await lookupService.LookupWatts(model);
+
+        if (_currentHardware == null)
+        {
+            _currentHardware = _hardware.Detect() ?? new HardwareInfo();
+        }
+
+        _currentHardware.CoolerModel = model;
+        _currentHardware.CoolerWatts = watts;
+
+        DisplayHardware(_currentHardware);
+
+        var (maxWatts, otherWatts) = _powerEstimator.CalculateMaxPower(_currentHardware);
+        _currentPower.MaxWatts = maxWatts;
+        _currentPower.OtherWatts = otherWatts;
+        _currentPower.CurrentWatts = _currentPower.CpuWatts + _currentPower.GpuWatts + otherWatts;
+        TxtMaxPower.Text = $"{maxWatts:F0} W";
+
+        UpdateDisplay();
+        UpdateCost();
+
+        BtnCoolerLookup.IsEnabled = true;
+        TxtStatus.Text = $"Updated cooler specs: {model} ({watts:F1}W estimated)";
     }
 
     private void StartMonitoring()
@@ -117,6 +159,7 @@ public partial class MainWindow : Window
 
     private void UpdateCost()
     {
+        if (_tnb == null) return;
         var hours = SliderHours.Value;
         _currentCost = _tnb.CalculateCost(_currentPower.CurrentWatts, hours);
 

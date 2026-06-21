@@ -8,13 +8,20 @@ interface Props {
 }
 
 export default function HardwareList({ hardware, maxWatts, otherWatts }: Props) {
+  const ramWatts = hardware.ram.sticks * hardware.ram.wattsPerStick;
+  const storageWatts = hardware.storage.reduce((a, s) => a + s.watts, 0);
+  const moboWatts = hardware.motherboard.estimatedWatts;
+  const coolerWatts = hardware.coolerWatts || 4.0;
+  const fansWatts = otherWatts - ramWatts - storageWatts - moboWatts - coolerWatts;
+
   const items: { icon: string; label: string; value: string }[] = [
     { icon: '🖥️', label: `CPU: ${hardware.cpu.name}`, value: `${hardware.cpu.tdp}W` },
     { icon: '🎮', label: `GPU: ${hardware.gpus[0]?.name || 'None'}`, value: `${hardware.gpus[0]?.tdp || 0}W` },
     { icon: '💾', label: `RAM: ${hardware.ram.totalGB}GB (${hardware.ram.sticks} sticks)`, value: `${hardware.ram.sticks * hardware.ram.wattsPerStick}W` },
     ...hardware.storage.map(s => ({ icon: '💽', label: `${s.type}: ${s.name}`, value: `${s.watts}W` })),
     { icon: '🔧', label: `Mobo: ${hardware.motherboard.manufacturer}`, value: `${hardware.motherboard.estimatedWatts}W` },
-    { icon: '🌬️', label: 'Fans + Peripherals', value: `${otherWatts - (hardware.ram.sticks * hardware.ram.wattsPerStick) - hardware.storage.reduce((a, s) => a + s.watts, 0) - hardware.motherboard.estimatedWatts}F0}W` },
+    { icon: '❄️', label: `Cooler: ${hardware.coolerModel || 'Stock/Default'}`, value: `${coolerWatts.toFixed(1)}W` },
+    { icon: '🌬️', label: 'Fans + Peripherals', value: `${Math.round(fansWatts)}W` },
   ];
 
   return (

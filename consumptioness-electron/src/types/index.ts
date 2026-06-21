@@ -4,6 +4,8 @@ export interface HardwareInfo {
   ram: RamInfo;
   storage: StorageInfo[];
   motherboard: MotherboardInfo;
+  coolerModel?: string;
+  coolerWatts?: number;
 }
 
 export interface CpuInfo {

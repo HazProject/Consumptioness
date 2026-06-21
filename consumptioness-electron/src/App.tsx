@@ -6,6 +6,7 @@ import TnbTariffPanel from './components/TnbTariffPanel';
 import ExportButtons from './components/ExportButtons';
 import { scanHardware, calculateMaxPower, calculateLivePower } from './services/hardware';
 import { getTariff, calculateCost } from './services/tnb';
+import { lookupCoolerWatts } from './services/coolerLookup';
 import type { HardwareInfo, PowerData, CostBreakdown as CostData, MonitorData, TnbTariffBlock } from './types';
 import './index.css';
 
@@ -26,6 +27,8 @@ export default function App() {
   const [status, setStatus] = useState("Ready. Click 'Scan My PC' to begin.");
   const [dailyHours, setDailyHours] = useState(8);
   const [version, setVersion] = useState('0.0.1');
+  const [coolerInput, setCoolerInput] = useState('');
+  const [isSearchingCooler, setIsSearchingCooler] = useState(false);
   const liveWattsRef = useRef(0);
 
   const { blocks, name: tariffName } = getTariff();
@@ -121,6 +124,51 @@ export default function App() {
     }
   };
 
+  const handleCoolerLookup = async () => {
+    if (!coolerInput.trim()) return;
+    setIsSearchingCooler(true);
+    setStatus(`Searching specs for cooler: ${coolerInput}...`);
+
+    const watts = await lookupCoolerWatts(coolerInput);
+    
+    setHardware(prev => {
+      const baseHw = prev || {
+        cpu: { name: 'AMD Ryzen 7 7800X3D', cores: 8, speedGHz: 4.2, manufacturer: 'AMD', tdp: 120 },
+        gpus: [{ name: 'NVIDIA RTX 4080', vramMB: 16384, vendor: 'NVIDIA', tdp: 320 }],
+        ram: { totalGB: 32, sticks: 2, wattsPerStick: 3.0 },
+        storage: [{ name: 'Samsung 990 Pro', type: 'SSD', sizeGB: 2000, watts: 3.0 }],
+        motherboard: { manufacturer: 'ASUS', model: 'ROG STRIX B650', estimatedWatts: 40 },
+      };
+      
+      const nextHw = {
+        ...baseHw,
+        coolerModel: coolerInput,
+        coolerWatts: watts,
+      };
+
+      const { maxWatts, otherWatts } = calculateMaxPower(nextHw);
+      
+      const newOtherWatts = otherWatts;
+      const currentWatts = power.cpuWatts + power.gpuWatts + newOtherWatts;
+      liveWattsRef.current = currentWatts;
+
+      setPower(p => ({
+        ...p,
+        maxWatts,
+        otherWatts: newOtherWatts,
+        currentWatts,
+      }));
+
+      const c = calculateCost(currentWatts, dailyHours);
+      setCost(c);
+
+      return nextHw;
+    });
+
+    setIsSearchingCooler(false);
+    setStatus(`Updated cooler specs: ${coolerInput} (${watts}W estimated)`);
+  };
+
   const handleDownloadNative = () => {
     window.open('https://github.com/HazProject/Consumptioness/releases', '_blank');
   };
@@ -137,12 +185,28 @@ export default function App() {
       </header>
 
       <div className="actions">
-        <button className="btn btn-primary" onClick={handleScan} disabled={isScanning}>
-          🔍 {isScanning ? 'Scanning...' : 'Scan My PC'}
-        </button>
-        <button className="btn btn-secondary" onClick={handleUpdateCheck}>
-          🔄 Check Update
-        </button>
+        <div className="main-actions">
+          <button className="btn btn-primary" onClick={handleScan} disabled={isScanning}>
+            🔍 {isScanning ? 'Scanning...' : 'Scan My PC'}
+          </button>
+          <button className="btn btn-secondary" onClick={handleUpdateCheck}>
+            🔄 Check Update
+          </button>
+        </div>
+        
+        <div className="cooler-lookup-row">
+          <label>❄️ Cooler Model:</label>
+          <input
+            type="text"
+            value={coolerInput}
+            onChange={(e) => setCoolerInput(e.target.value)}
+            placeholder="e.g. Corsair H150i, Noctua NH-D15"
+            className="cooler-input"
+          />
+          <button className="btn btn-secondary" onClick={handleCoolerLookup} disabled={isSearchingCooler}>
+            {isSearchingCooler ? 'Searching...' : 'Search Specs'}
+          </button>
+        </div>
       </div>
 
       {hardware && (

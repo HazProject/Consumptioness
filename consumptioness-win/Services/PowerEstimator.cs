@@ -12,8 +12,9 @@ public class PowerEstimator
         double storage = hw.Storage.Sum(s => s.Watts);
         double mobo = hw.Motherboard.EstimatedWatts;
         double fans = hw.FanCount * 2.5;
+        double cooler = hw.CoolerWatts;
         double usb = hw.UsbDevices * 2.5;
-        double other = ram + storage + mobo + fans + usb;
+        double other = ram + storage + mobo + fans + cooler + usb;
 
         return (cpu + gpu + other, other);
     }

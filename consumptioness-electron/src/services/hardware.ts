@@ -25,9 +25,10 @@ export function calculateMaxPower(hw: HardwareInfo) {
   const ram = hw.ram.sticks * hw.ram.wattsPerStick;
   const storage = hw.storage.reduce((sum, s) => sum + s.watts, 0);
   const mobo = hw.motherboard.estimatedWatts;
+  const cooler = hw.coolerWatts || 4.0;
   const fans = 3 * 2.5;
   const usb = 2 * 2.5;
-  const other = ram + storage + mobo + fans + usb;
+  const other = ram + storage + mobo + fans + cooler + usb;
   return { maxWatts: cpu + gpu + other, otherWatts: other };
 }
 

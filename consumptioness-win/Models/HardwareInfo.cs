@@ -9,6 +9,8 @@ public class HardwareInfo
     public MotherboardInfo Motherboard { get; set; } = new();
     public int FanCount { get; set; } = 3;
     public int UsbDevices { get; set; } = 2;
+    public string CoolerModel { get; set; } = "Stock/Default";
+    public double CoolerWatts { get; set; } = 4.0;
 }
 
 public class CpuInfo
